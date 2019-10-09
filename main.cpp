@@ -24,6 +24,20 @@ bool IsConsoleVisible()
 	return ::IsWindowVisible(::GetConsoleWindow()) != FALSE;
 }
 
+void check_error(child* F, child* G)
+{
+	if (!F->running() && F->exit_code() != 0)
+	{
+		cout << "F function couldn't return a value because of an error";
+		exit(0);
+	}
+	if (!G->running() && G->exit_code() != 0)
+	{
+		cout << "G function couldn't return a value because of an error";
+		exit(0);
+	}
+}
+
 void update_value(boost::asio::io_service* ios, char* readFrom, double* result)
 {
 	std::chrono::milliseconds time(10);
@@ -35,7 +49,7 @@ void update_value(boost::asio::io_service* ios, char* readFrom, double* result)
 	ios->run_one_for(time);
 }
 
-void chech_escape(boost::asio::io_service* iosF, boost::asio::io_service* iosG, char* readFromF, char* readFromG, double* fResult, double* gResult)
+void chech_escape(boost::asio::io_service* iosF, boost::asio::io_service* iosG, char* readFromF, char* readFromG, double* fResult, double* gResult, child* F, child *G)
 {
 	std::chrono::milliseconds time(10);
 
@@ -76,6 +90,7 @@ void chech_escape(boost::asio::io_service* iosF, boost::asio::io_service* iosG, 
 				system("pause");
 				exit(0);
 			}
+
 			if (GetAsyncKeyState(0x4E) == -32767)
 			{
 				ShowConsole();
@@ -83,6 +98,9 @@ void chech_escape(boost::asio::io_service* iosF, boost::asio::io_service* iosG, 
 				cout << "Abortion stopped by user\n";
 				break;
 			}
+
+			check_error(F, G);
+
 			if (*fResult == 0 || *gResult == 0 || (*fResult != -1 && *gResult != -1))
 			{
 				ShowConsole();
@@ -158,6 +176,8 @@ int main()
 			break;
 		}
 
+		check_error(&F, &G);
+
 		if (gResult > -1 && fResult > -1)
 		{
 			cout << "Both functions computed, computing result...\n";
@@ -165,7 +185,7 @@ int main()
 			break;
 		}
 
-		chech_escape(&iosF, &iosG, readFromF, readFromG, &fResult, &gResult);
+		chech_escape(&iosF, &iosG, readFromF, readFromG, &fResult, &gResult, &F, &G);
 	}
 
 	cout << "Computed result: " << (fResult < gResult ? fResult : gResult) << endl;

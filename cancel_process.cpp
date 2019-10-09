@@ -17,7 +17,7 @@ int main()
 {
 	string input;
 	cout << "Abortion command issued, press \"Y\" to confirm or \"N\" to continue computation\n";
-	int i = 15;
+	int i = 60;
 	while (true)
 	{
 		cout << "\r" << i << " seconds left before termination...  " << flush;
