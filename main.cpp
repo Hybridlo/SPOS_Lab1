@@ -49,7 +49,7 @@ void update_value(boost::asio::io_service* ios, char* readFrom, double* result)
 	ios->run_one_for(time);
 }
 
-void chech_escape(boost::asio::io_service* iosF, boost::asio::io_service* iosG, char* readFromF, char* readFromG, double* fResult, double* gResult, child* F, child *G)
+bool check_escape(boost::asio::io_service* iosF, boost::asio::io_service* iosG, char* readFromF, char* readFromG, double* fResult, double* gResult, child* F, child *G)
 {
 	std::chrono::milliseconds time(10);
 
@@ -87,8 +87,7 @@ void chech_escape(boost::asio::io_service* iosF, boost::asio::io_service* iosG, 
 					cout << "F function computed, but G was not\n";
 
 				TerminateProcess(cancel.native_handle(), 0);
-				system("pause");
-				exit(0);
+				return true;
 			}
 
 			if (GetAsyncKeyState(0x4E) == -32767)
@@ -110,26 +109,12 @@ void chech_escape(boost::asio::io_service* iosF, boost::asio::io_service* iosG, 
 			}
 		}
 	}
+
+	return false;
 }
 
-int main()
+void start()
 {
-	cout << "Enter Y to recompile other processes executables\n";
-
-	string ch;
-
-	cin >> ch;
-
-	if (ch == "y" || ch == "Y")
-	{
-		cout << "Compiling F, please wait...\n";
-		system("g++ -std=c++2a f_func_process.cpp -o f_func_process", std_err > stderr);
-		cout << "Compiling G, please wait...\n";
-		system("g++ -std=c++2a g_func_process.cpp -o g_func_process", std_err > stderr);
-		cout << "Compiling cancelation, please wait...\n";
-		system("g++ -std=c++2a cancel_process.cpp -o cancel_process", std_err > stderr);
-	}
-
 	cout << "Enter the x value:";
 
 	int x;
@@ -140,7 +125,7 @@ int main()
 
 	opstream sendToF, sendToG;
 	char readFromF[4096] = "", readFromG[4096] = "";
-	
+
 
 	child F("f_func_process", std_out > boost::asio::buffer(readFromF), iosF, std_in < sendToF, std_err > stderr);
 	child G("g_func_process", std_out > boost::asio::buffer(readFromG), iosG, std_in < sendToG, std_err > stderr);
@@ -153,7 +138,6 @@ int main()
 	std::chrono::milliseconds time(10);
 	int i = 0;
 
-	system("CLS");
 	cout << "Start computing functions, press ESC to abort\n";
 
 	while (true)
@@ -166,7 +150,7 @@ int main()
 			gResult = 1;
 			break;
 		}
-		
+
 		update_value(&iosG, readFromG, &gResult);
 
 		if (gResult == 0)
@@ -185,10 +169,21 @@ int main()
 			break;
 		}
 
-		chech_escape(&iosF, &iosG, readFromF, readFromG, &fResult, &gResult, &F, &G);
+		if (check_escape(&iosF, &iosG, readFromF, readFromG, &fResult, &gResult, &F, &G))
+		{
+			return;
+		}
 	}
 
 	cout << "Computed result: " << (fResult < gResult ? fResult : gResult) << endl;
-	system("pause");
-	return 0;
+}
+
+int main()
+{
+	while (true)
+	{
+		start();
+		cout << endl;
+	}
+	
 }
