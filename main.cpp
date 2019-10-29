@@ -24,20 +24,6 @@ bool IsConsoleVisible()
 	return ::IsWindowVisible(::GetConsoleWindow()) != FALSE;
 }
 
-void check_error(child* F, child* G)
-{
-	if (!F->running() && F->exit_code() != 0)
-	{
-		cout << "F function couldn't return a value because of an error";
-		exit(0);
-	}
-	if (!G->running() && G->exit_code() != 0)
-	{
-		cout << "G function couldn't return a value because of an error";
-		exit(0);
-	}
-}
-
 void update_value(boost::asio::io_service* ios, char* readFrom, double* result)
 {
 	std::chrono::milliseconds time(10);
@@ -51,16 +37,14 @@ void update_value(boost::asio::io_service* ios, char* readFrom, double* result)
 
 bool check_escape(boost::asio::io_service* iosF, boost::asio::io_service* iosG, char* readFromF, char* readFromG, double* fResult, double* gResult, child* F, child *G)
 {
-	std::chrono::milliseconds time(10);
-
-	auto set_own_window = [](auto& exec)
-	{
-		exec.creation_flags |=
-			boost::detail::winapi::CREATE_NEW_CONSOLE_;
-	};
-
 	if (GetAsyncKeyState(VK_ESCAPE) == -32767)
 	{
+		auto set_own_window = [](auto& exec)
+		{
+			exec.creation_flags |=
+				boost::detail::winapi::CREATE_NEW_CONSOLE_;
+		};
+
 		opstream sendToCancel;
 		child cancel("cancel_process", boost::process::extend::on_setup = set_own_window);
 
@@ -98,8 +82,6 @@ bool check_escape(boost::asio::io_service* iosF, boost::asio::io_service* iosG, 
 				break;
 			}
 
-			check_error(F, G);
-
 			if (*fResult == 0 || *gResult == 0 || (*fResult != -1 && *gResult != -1))
 			{
 				ShowConsole();
@@ -134,8 +116,6 @@ void start()
 	sendToG << x << endl;
 
 	double fResult = -1, gResult = -1;
-
-	std::chrono::milliseconds time(10);
 	int i = 0;
 
 	cout << "Start computing functions, press ESC to abort\n";
@@ -159,8 +139,6 @@ void start()
 			fResult = 1;
 			break;
 		}
-
-		check_error(&F, &G);
 
 		if (gResult > -1 && fResult > -1)
 		{
