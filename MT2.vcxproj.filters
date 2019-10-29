@@ -18,16 +18,13 @@
     <ClCompile Include="main.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="f_func_process.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="g_func_process.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="cancel_process.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="demofuncs">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="func_process.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>

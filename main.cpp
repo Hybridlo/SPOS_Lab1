@@ -109,11 +109,11 @@ void start()
 	char readFromF[4096] = "", readFromG[4096] = "";
 
 
-	child F("f_func_process", std_out > boost::asio::buffer(readFromF), iosF, std_in < sendToF, std_err > stderr);
-	child G("g_func_process", std_out > boost::asio::buffer(readFromG), iosG, std_in < sendToG, std_err > stderr);
+	child F("func_process", std_out > boost::asio::buffer(readFromF), iosF, std_in < sendToF, std_err > stderr);
+	child G("func_process", std_out > boost::asio::buffer(readFromG), iosG, std_in < sendToG, std_err > stderr);
 
-	sendToF << x << endl;
-	sendToG << x << endl;
+	sendToF << 1 << endl << x << endl;
+	sendToG << 2 << endl << x << endl;
 
 	double fResult = -1, gResult = -1;
 	int i = 0;
